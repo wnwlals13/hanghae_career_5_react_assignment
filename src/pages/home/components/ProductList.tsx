@@ -5,8 +5,6 @@ import { PRODUCT_PAGE_SIZE } from '@/constants';
 import { extractIndexLink, isFirebaseIndexError } from '@/helpers/error';
 import { useModal } from '@/hooks/useModal';
 import { FirebaseIndexErrorModal } from '@/pages/error/components/FirebaseIndexErrorModal';
-import { selectIsLogin, selectUser } from '@/store/auth/authSelectors';
-import { addCartItem } from '@/store/cart/cartSlice';
 import { selectFilter } from '@/store/filter/filterSelectors';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loadProducts } from '@/store/product/productsActions';
@@ -24,6 +22,8 @@ import { ProductCardSkeleton } from '../skeletons/ProductCardSkeleton';
 import { EmptyProduct } from './EmptyProduct';
 import { ProductCard } from './ProductCard';
 import { ProductRegistrationModal } from './ProductRegistrationModal';
+import { useAuthStore } from '@/store/auth/authStore';
+import { useCartStore } from '@/store/cart/cartStore';
 
 interface ProductListProps {
   pageSize?: number;
@@ -44,8 +44,10 @@ export const ProductList: React.FC<ProductListProps> = ({
   const hasNextPage = useAppSelector(selectHasNextPage);
   const isLoading = useAppSelector(selectIsLoading);
   const filter = useAppSelector(selectFilter);
-  const user = useAppSelector(selectUser);
-  const isLogin = useAppSelector(selectIsLogin);
+  const isLogin = useAuthStore((state) => state.isLogin);
+  const user = useAuthStore((state) => state.user);
+  const addCartItem = useCartStore((state) => state.addCartItem);
+
   const totalCount = useAppSelector(selectTotalCount);
 
   const loadProductsData = async (isInitial = false): Promise<void> => {
@@ -83,7 +85,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   const handleCartAction = (product: IProduct): void => {
     if (isLogin && user) {
       const cartItem: CartItem = { ...product, count: 1 };
-      dispatch(addCartItem({ item: cartItem, userId: user.uid, count: 1 }));
+      addCartItem({ item: cartItem, userId: user.uid, count: 1 });
       console.log(`${product.title} 상품이 \n장바구니에 담겼습니다.`);
     } else {
       navigate(pageRoutes.login);
@@ -93,7 +95,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   const handlePurchaseAction = (product: IProduct): void => {
     if (isLogin && user) {
       const cartItem: CartItem = { ...product, count: 1 };
-      dispatch(addCartItem({ item: cartItem, userId: user.uid, count: 1 }));
+      addCartItem({ item: cartItem, userId: user.uid, count: 1 });
       navigate(pageRoutes.cart);
     } else {
       navigate(pageRoutes.login);
@@ -136,7 +138,7 @@ export const ProductList: React.FC<ProductListProps> = ({
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {products.map((product, index) => (
+              {products.map((product: any, index: any) => (
                 <ProductCard
                   key={`${product.id}_${index}`}
                   product={product}
