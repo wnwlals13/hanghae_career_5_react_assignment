@@ -12,6 +12,7 @@ import { EMAIL_PATTERN } from '@/constants';
 import { auth } from '@/firebase';
 import { Layout, authStatusType } from '@/pages/common/components/Layout';
 import { useAuthStore } from '@/store/auth/authStore';
+import { useStore } from '@/store';
 
 interface FormErrors {
   email?: string;
@@ -23,6 +24,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const setIsLogin = useAuthStore((state) => state.setIsLogin);
   const setUser = useAuthStore((state) => state.setUser);
+  const setShowToast = useStore((state) => state.setShowToast);
 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -62,15 +64,23 @@ export const LoginPage = () => {
 
         Cookies.set('accessToken', token, { expires: 7 });
 
-        setIsLogin(true);
         if (user) {
+          setIsLogin(true);
           setUser({
             uid: user.uid,
             email: user.email ?? '',
             displayName: user.displayName ?? '',
           });
+          setShowToast(true, 'login');
+          localStorage.setItem(
+            'user',
+            JSON.stringify({
+              uid: user.uid,
+              email: user.email ?? '',
+              displayName: user.displayName ?? '',
+            })
+          );
         }
-
         navigate(pageRoutes.main);
       } catch (error) {
         console.error(

@@ -71,7 +71,12 @@ export const fetchProducts = async (
     const paginatedProducts = products.slice(startIndex, endIndex);
 
     const hasNextPage = endIndex < totalCount;
-
+    console.log(
+      'fetchProducts => ',
+      paginatedProducts,
+      'hasNextPage => ',
+      hasNextPage
+    );
     return { products: paginatedProducts, hasNextPage, totalCount };
   } catch (error) {
     console.error('Error fetching products: ', error);

@@ -9,9 +9,12 @@ export interface AuthState {
   registerError: string | null;
 }
 
+const loginUser = localStorage.getItem('user');
+const userInfo = loginUser ? JSON.parse(loginUser) : null;
+
 export const initialState: AuthState = {
-  isLogin: false,
-  user: null,
+  isLogin: userInfo ? true : false,
+  user: userInfo ? userInfo : null,
   isLoading: false,
   registerStatus: 'idle',
   registerError: null,

@@ -4,6 +4,8 @@ import { Navigate } from 'react-router-dom';
 import { pageRoutes } from '@/apiRoutes';
 import { NavigationBar } from './NavigationBar';
 import { useAuthStore } from '@/store/auth/authStore';
+import ToastBar from './ToastBar';
+import { useStore } from '@/store';
 
 export const authStatusType = {
   NEED_LOGIN: 'NEED_LOGIN',
@@ -23,6 +25,8 @@ export const Layout: React.FC<LayoutProps> = ({
   authStatus = authStatusType.COMMON,
 }) => {
   const isLogin = useAuthStore((state) => state.isLogin);
+  const showToast = useStore((state) => state.showToast);
+  const setShowToast = useStore((state) => state.setShowToast);
 
   if (authStatus === authStatusType.NEED_LOGIN && !isLogin) {
     return <Navigate to={pageRoutes.login} />;
@@ -42,6 +46,13 @@ export const Layout: React.FC<LayoutProps> = ({
           </div>
         </main>
       </div>
+      {showToast && (
+        <ToastBar
+          onClose={() => {
+            setShowToast(false);
+          }}
+        />
+      )}
     </div>
   );
 };

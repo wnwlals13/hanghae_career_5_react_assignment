@@ -13,6 +13,7 @@ import { registerUserAPI } from '@/api/auth';
 import { useMutation } from '@tanstack/react-query';
 import { IUser } from '@/types/authType';
 import { RegisterUserReqDTO } from '@/api/dtos/authDTO';
+import { useStore } from '@/store';
 
 interface FormErrors {
   name?: string;
@@ -27,6 +28,7 @@ export const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [errors, setErrors] = useState<FormErrors>({});
 
+  const setShowToast = useStore((state) => state.setShowToast);
   const registerStatus = useAuthStore((state) => state.registerStatus);
   const registerError = useAuthStore((state) => state.registerError);
   const setUser = useAuthStore((state) => state.setUser);
@@ -70,8 +72,8 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     if (validateForm()) {
       try {
-        // await registerUser({ email, password, name });
         mutate({ email: email, password: password, name: name });
+        setShowToast(true, 'rergister');
         console.log('가입 성공!');
         navigate(pageRoutes.login);
       } catch (error) {

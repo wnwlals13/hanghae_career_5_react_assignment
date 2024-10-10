@@ -15,7 +15,7 @@ export const registerUserAPI = async ({
     password
   );
   const user = userCredential.user;
-  console.log('register =>', user);
+
   await updateProfile(user, { displayName: name });
 
   await setDoc(doc(db, 'users', user.uid), {

@@ -35,6 +35,7 @@ export const NavigationBar = () => {
 
   const handleConfirmLogout = () => {
     logout();
+    localStorage.removeItem('user');
     Cookies.remove('accessToken');
     closeModal();
   };

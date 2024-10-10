@@ -1,4 +1,5 @@
-import { NewProductDTO } from '@/api/dtos/productDTO';
+import { IProduct, NewProductDTO } from '@/api/dtos/productDTO';
+import { addProductAPI } from '@/api/product';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,8 +19,10 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { ALL_CATEGORY_ID, categories } from '@/constants';
 import { createNewProduct, initialProductState } from '@/helpers/product';
+import { useStore } from '@/store';
 import { useProductStore } from '@/store/product/productStore';
 import { uploadImage } from '@/utils/imageUpload';
+import { useMutation } from '@tanstack/react-query';
 import { ChangeEvent, useState } from 'react';
 
 interface ProductRegistrationModalProps {
@@ -31,7 +34,18 @@ interface ProductRegistrationModalProps {
 export const ProductRegistrationModal: React.FC<
   ProductRegistrationModalProps
 > = ({ isOpen, onClose, onProductAdded }) => {
-  const addProduct = useProductStore((state) => state.addProduct);
+  const setShowToast = useStore((state) => state.setShowToast);
+  const addProducts = useProductStore((state) => state.addProducts);
+  const FetchData = async (productData: NewProductDTO) => {
+    const newProduct: IProduct = await addProductAPI(productData);
+    return newProduct;
+  };
+  const { data, mutate, error } = useMutation({
+    mutationFn: FetchData,
+    onSuccess(data) {
+      addProducts(data);
+    },
+  });
   const [product, setProduct] = useState<NewProductDTO>(initialProductState);
 
   const handleChange = (
@@ -61,7 +75,8 @@ export const ProductRegistrationModal: React.FC<
       }
 
       const newProduct = createNewProduct(product, imageUrl);
-      await addProduct(newProduct);
+      mutate(newProduct);
+      setShowToast(true, 'upload');
       onClose();
       onProductAdded();
     } catch (error) {
