@@ -9,6 +9,10 @@ import { pageRoutes } from '@/apiRoutes';
 import { EMAIL_PATTERN } from '@/constants';
 import { Layout, authStatusType } from '@/pages/common/components/Layout';
 import { useAuthStore } from '@/store/auth/authStore';
+import { registerUserAPI } from '@/api/auth';
+import { useMutation } from '@tanstack/react-query';
+import { IUser } from '@/types/authType';
+import { RegisterUserReqDTO } from '@/api/dtos/authDTO';
 
 interface FormErrors {
   name?: string;
@@ -23,9 +27,25 @@ export const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const registerUser = useAuthStore((state) => state.registerUser);
   const registerStatus = useAuthStore((state) => state.registerStatus);
   const registerError = useAuthStore((state) => state.registerError);
+  const setUser = useAuthStore((state) => state.setUser);
+  const registerUserData = async ({
+    email,
+    password,
+    name,
+  }: RegisterUserReqDTO): Promise<IUser> => {
+    return await registerUserAPI({ email, password, name });
+  };
+  const { data, mutate, status, error } = useMutation({
+    mutationFn: registerUserData,
+    onSuccess(data) {
+      setUser(data);
+    },
+    onError(error) {
+      console.log('정상적으로 회원가입되지 않았습니다.');
+    },
+  });
 
   useEffect(() => {
     if (registerStatus === 'succeeded') {
@@ -50,7 +70,8 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     if (validateForm()) {
       try {
-        await registerUser({ email, password, name });
+        // await registerUser({ email, password, name });
+        mutate({ email: email, password: password, name: name });
         console.log('가입 성공!');
         navigate(pageRoutes.login);
       } catch (error) {

@@ -5,15 +5,6 @@ import { PRODUCT_PAGE_SIZE } from '@/constants';
 import { extractIndexLink, isFirebaseIndexError } from '@/helpers/error';
 import { useModal } from '@/hooks/useModal';
 import { FirebaseIndexErrorModal } from '@/pages/error/components/FirebaseIndexErrorModal';
-import { selectFilter } from '@/store/filter/filterSelectors';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loadProducts } from '@/store/product/productsActions';
-import {
-  selectHasNextPage,
-  selectIsLoading,
-  selectProducts,
-  selectTotalCount,
-} from '@/store/product/productsSelectors';
 import { CartItem } from '@/types/cartType';
 import { ChevronDown, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -22,8 +13,11 @@ import { ProductCardSkeleton } from '../skeletons/ProductCardSkeleton';
 import { EmptyProduct } from './EmptyProduct';
 import { ProductCard } from './ProductCard';
 import { ProductRegistrationModal } from './ProductRegistrationModal';
+
 import { useAuthStore } from '@/store/auth/authStore';
 import { useCartStore } from '@/store/cart/cartStore';
+import { useFilterStore } from '@/store/filter/filterStore';
+import { useProductStore } from '@/store/product/productStore';
 
 interface ProductListProps {
   pageSize?: number;
@@ -33,34 +27,32 @@ export const ProductList: React.FC<ProductListProps> = ({
   pageSize = PRODUCT_PAGE_SIZE,
 }) => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { isOpen, openModal, closeModal } = useModal();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isIndexErrorModalOpen, setIsIndexErrorModalOpen] =
     useState<boolean>(false);
   const [indexLink, setIndexLink] = useState<string | null>(null);
 
-  const products = useAppSelector(selectProducts);
-  const hasNextPage = useAppSelector(selectHasNextPage);
-  const isLoading = useAppSelector(selectIsLoading);
-  const filter = useAppSelector(selectFilter);
   const isLogin = useAuthStore((state) => state.isLogin);
   const user = useAuthStore((state) => state.user);
   const addCartItem = useCartStore((state) => state.addCartItem);
-
-  const totalCount = useAppSelector(selectTotalCount);
+  const filter = useFilterStore((state) => state.filter);
+  const loadProducts = useProductStore((state) => state.loadProducts);
+  const products = useProductStore((state) => state.products.items);
+  const isLoading = useProductStore((state) => state.products.isLoading);
+  const hasNextPage = useProductStore((state) => state.products.hasNextPage);
+  const totalCount = useProductStore((state) => state.products.totalCount);
 
   const loadProductsData = async (isInitial = false): Promise<void> => {
     try {
       const page = isInitial ? 1 : currentPage + 1;
-      await dispatch(
-        loadProducts({
-          filter,
-          pageSize,
-          page,
-          isInitial,
-        })
-      ).unwrap();
+
+      await loadProducts({
+        filter,
+        pageSize,
+        page,
+        isInitial,
+      });
       if (!isInitial) {
         setCurrentPage(page);
       }

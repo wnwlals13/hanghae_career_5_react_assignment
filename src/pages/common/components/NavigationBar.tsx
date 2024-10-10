@@ -8,7 +8,6 @@ import { useCartStore } from '@/store/cart/cartStore';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { useModal } from '@/hooks/useModal';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useAuthStore } from '@/store/auth/authStore';
 import { CartButton } from './CartButton';
 import { ConfirmModal } from './ConfirmModal';
@@ -17,7 +16,6 @@ import { LogoutButton } from './LogoutButton';
 
 export const NavigationBar = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const { isOpen, openModal, closeModal } = useModal();
   const isLogin = useAuthStore((state) => state.isLogin);
   const user = useAuthStore((state) => state.user);
@@ -29,7 +27,7 @@ export const NavigationBar = () => {
     if (isLogin && user && cart.length === 0) {
       initCart(user.uid);
     }
-  }, [isLogin, user, dispatch, cart.length]);
+  }, [isLogin, user, cart.length]);
 
   const handleLogout = () => {
     openModal();

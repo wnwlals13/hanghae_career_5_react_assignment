@@ -3,18 +3,12 @@ import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
 
 import { ApiErrorBoundary } from '@/pages/common/components/ApiErrorBoundary';
-import {
-  setCategoryId,
-  setMaxPrice,
-  setMinPrice,
-  setTitle,
-} from '@/store/filter/filterActions';
-import { selectFilter } from '@/store/filter/filterSelectors';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { debounce } from '@/utils/common';
 import { CategoryRadioGroup } from './CategoryRadioGroup';
 import { PriceRange } from './PriceRange';
 import { SearchBar } from './SearchBar';
+
+import { useFilterStore } from '@/store/filter/filterStore';
 
 interface ProductFilterBoxProps {
   children: React.ReactNode;
@@ -27,12 +21,15 @@ const ProductFilterBox: React.FC<ProductFilterBoxProps> = ({ children }) => (
 );
 
 export const ProductFilter = () => {
-  const dispatch = useAppDispatch();
-  const filterState = useAppSelector(selectFilter);
+  const setMinPrice = useFilterStore((state) => state.setMinPrice);
+  const setMaxPrice = useFilterStore((state) => state.setMaxPrice);
+  const setTitle = useFilterStore((state) => state.setTitle);
+  const setCategoryId = useFilterStore((state) => state.setCategoryId);
+  const filterState = useFilterStore((state) => state.filter);
 
   const handleChangeInput = debounce(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      dispatch(setTitle(e.target.value));
+      setTitle(e.target.value);
     },
     300
   );
@@ -43,11 +40,11 @@ export const ProductFilter = () => {
     debounce((e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (value === '') {
-        dispatch(actionCreator(-1));
+        actionCreator(-1);
       } else {
         const numericValue = Math.max(0, parseInt(value, 10));
         if (!isNaN(numericValue)) {
-          dispatch(actionCreator(numericValue));
+          actionCreator(numericValue);
         }
       }
     }, 300);
@@ -57,7 +54,7 @@ export const ProductFilter = () => {
 
   const handleChangeCategory = (value: string) => {
     if (value !== undefined) {
-      dispatch(setCategoryId(value));
+      setCategoryId(value);
     } else {
       console.error('카테고리가 설정되지 않았습니다.');
     }
