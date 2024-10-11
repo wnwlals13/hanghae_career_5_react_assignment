@@ -13,7 +13,7 @@ import { ProductCardSkeleton } from '../skeletons/ProductCardSkeleton';
 import { EmptyProduct } from './EmptyProduct';
 import { ProductCard } from './ProductCard';
 import { ProductRegistrationModal } from './ProductRegistrationModal';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useAuthStore } from '@/store/auth/authStore';
 import { useCartStore } from '@/store/cart/cartStore';
@@ -80,7 +80,7 @@ export const ProductList: React.FC<ProductListProps> = ({
         isInitial: pageParam === 1,
       };
     },
-    []
+    [currentPage]
   );
 
   const {

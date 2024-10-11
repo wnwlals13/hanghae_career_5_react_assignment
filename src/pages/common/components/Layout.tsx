@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { pageRoutes } from '@/apiRoutes';
 import { NavigationBar } from './NavigationBar';
 import { useAuthStore } from '@/store/auth/authStore';
-import ToastBar from './ToastBar';
+import ToastBar from '../../../components/ui/ToastBar';
 import { useStore } from '@/store';
 
 export const authStatusType = {
