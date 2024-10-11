@@ -72,7 +72,7 @@ export const LoginPage = () => {
             displayName: user.displayName ?? '',
           });
           setShowToast(true, 'login');
-          localStorage.setItem(
+          Cookies.set(
             'user',
             JSON.stringify({
               uid: user.uid,

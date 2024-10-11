@@ -1,4 +1,5 @@
 import { IUser } from '@/types/authType';
+import Cookies from 'js-cookie';
 import { create } from 'zustand';
 
 export interface AuthState {
@@ -9,7 +10,7 @@ export interface AuthState {
   registerError: string | null;
 }
 
-const loginUser = localStorage.getItem('user');
+const loginUser = Cookies.get('user');
 const userInfo = loginUser ? JSON.parse(loginUser) : null;
 
 export const initialState: AuthState = {

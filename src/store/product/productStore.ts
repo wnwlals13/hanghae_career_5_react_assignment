@@ -1,6 +1,7 @@
 import { IProduct, PaginatedProductsDTO } from '@/api/dtos/productDTO';
 import { create } from 'zustand';
 import { ProductFilter, ProductSliceState } from '@/types/productType';
+import { FetchProductResponse } from '@/pages/home/components/ProductList';
 
 export interface LoadProductsProps {
   filter: ProductFilter;
@@ -21,7 +22,7 @@ interface ProductState {
 }
 
 interface ProductAction {
-  setProducts: (param: PaginatedProductsDTO) => void;
+  setProducts: (param: FetchProductResponse) => void;
   addProducts: (param: IProduct) => void;
 }
 
@@ -33,30 +34,34 @@ const initialState: ProductSliceState = {
   totalCount: 0,
 };
 
-export const useProductStore = create<ProductState & ProductAction>((set) => ({
-  products: initialState,
-  setProducts: (param: PaginatedProductsDTO) => {
-    console.log('pages', param);
-    set((state) => ({
-      products: {
-        ...state.products,
-        items: [...param.products],
-        hasNextPage: param.hasNextPage,
-        totalCount: param.totalCount,
-        isLoading: false,
-        error: null,
-      },
-    }));
-  },
-  addProducts: (newProduct: IProduct) => {
-    set((state) => ({
-      products: {
-        ...state.products,
-        items: [newProduct].concat(state.products.items),
-        totalCount: state.products.totalCount + 1,
-        isLoading: false,
-        error: null,
-      },
-    }));
-  },
-}));
+export const useProductStore = create<ProductState & ProductAction>(
+  (set, get) => ({
+    products: initialState,
+    setProducts: (param: FetchProductResponse) => {
+      set((state) => ({
+        products: {
+          ...state.products,
+          items: param.isInitial
+            ? [...param.products]
+            : [...state.products.items, ...param.products],
+          hasNextPage: param.hasNextPage,
+          totalCount: param.totalCount,
+          isLoading: false,
+          error: null,
+        },
+      }));
+    },
+
+    addProducts: (newProduct: IProduct) => {
+      set((state) => ({
+        products: {
+          ...state.products,
+          items: [newProduct].concat(state.products.items),
+          totalCount: state.products.totalCount + 1,
+          isLoading: false,
+          error: null,
+        },
+      }));
+    },
+  })
+);
